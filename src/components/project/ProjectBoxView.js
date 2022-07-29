@@ -9,6 +9,7 @@ function ProjectBoxView({
   onEditProject,
   onDeleteProject,
   onSubmitTask,
+  onChangeTask,
   onMoveTask,
   onDeleteTask,
 }) {
@@ -24,6 +25,7 @@ function ProjectBoxView({
         boxColor={boxColor}
         project={project}
         onSubmitTask={onSubmitTask}
+        onChangeTask={onChangeTask}
         onMoveTask={onMoveTask}
         onDeleteTask={onDeleteTask}
       />

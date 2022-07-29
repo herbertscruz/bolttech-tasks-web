@@ -14,7 +14,7 @@ import {
 
 function Dashboard() {
   const boxColor = "grey.300";
-  const pipe = process.env.REACT_APP_PIPE.split(",");
+  const pipe = process.env?.REACT_APP_PIPE?.split(",");
   const { token, user, onLogout } = useAuth();
   const [open, setOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(false);
@@ -120,6 +120,24 @@ function Dashboard() {
       .catch((err) => handleClick(err.message, "error"));
   };
 
+  const onChangeTask = (task) => {
+    saveTask(token.token, task)
+      .then((data) => {
+        if (data?.status === 401) {
+          delay(() => {
+            onLogout();
+          }, 6000);
+        }
+        if (data?.status >= 400) {
+          handleClick(process.env.REACT_APP_ERROR_0014, "error");
+        } else {
+          handleClick(process.env.REACT_APP_ERROR_0015, "success");
+          loadProjects(token, user, onLogout);
+        }
+      })
+      .catch((err) => handleClick(err.message, "error"));
+  };
+
   const onMoveTask = (task) => {
     const idx = pipe.findIndex((step) => step === task.status);
     task.status = pipe[idx + 1];
@@ -184,6 +202,7 @@ function Dashboard() {
               onEditProject={onEditProject}
               onDeleteProject={onDeleteProject}
               onSubmitTask={onSubmitTask}
+              onChangeTask={onChangeTask}
               onMoveTask={onMoveTask}
               onDeleteTask={onDeleteTask}
             />
