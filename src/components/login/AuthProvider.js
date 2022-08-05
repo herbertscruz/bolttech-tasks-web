@@ -14,11 +14,11 @@ function AuthProvider({ children }) {
 
   const [token, setToken] = React.useState(() => {
     const bolttechToken = localStorage.getItem("bolttech_token");
-    return (bolttechToken) ? JSON.parse(bolttechToken) : null;
+    return bolttechToken ? JSON.parse(bolttechToken) : null;
   });
   const [user, setUser] = React.useState(() => {
     const bolttechUser = localStorage.getItem("bolttech_user");
-    return (bolttechUser) ? JSON.parse(bolttechUser) : null;
+    return bolttechUser ? JSON.parse(bolttechUser) : null;
   });
 
   const handleLogin = async (data) => {
@@ -41,7 +41,7 @@ function AuthProvider({ children }) {
       throw new Error(process.env.REACT_APP_ERROR_0001);
     }
 
-    const origin = location.state?.from?.pathname || '/dashboard';
+    const origin = location.state?.from?.pathname || "/dashboard";
     navigate(origin);
   };
 

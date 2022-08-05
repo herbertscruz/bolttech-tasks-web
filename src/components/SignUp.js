@@ -75,7 +75,7 @@ function SignUp() {
             handleClick(process.env.REACT_APP_ERROR_0002, "error");
           } else {
             handleClick(process.env.REACT_APP_ERROR_0003, "success");
-            resetForm({ values: '' });
+            resetForm({ values: "" });
           }
         })
         .catch((err) => handleClick(err.message, "error"));

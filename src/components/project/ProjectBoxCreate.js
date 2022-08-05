@@ -1,17 +1,11 @@
-import {
-  Box,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-} from "@mui/material";
+import { Box, Typography, Grid, TextField, Button } from "@mui/material";
 import React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
-function ProjectBoxCreate({onSubmitProject}) {
+function ProjectBoxCreate({ onSubmitProject }) {
   const boxColor = "grey.300";
-  
+
   const boxCreateProject = {
     border: 1,
     borderColor: boxColor,
@@ -19,7 +13,7 @@ function ProjectBoxCreate({onSubmitProject}) {
     padding: "2em 5em 2em 5em",
     textAlign: "center",
   };
-  
+
   const validationSchema = yup.object({
     name: yup
       .string("Enter your project name")

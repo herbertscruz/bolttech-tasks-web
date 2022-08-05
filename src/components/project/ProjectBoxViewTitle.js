@@ -27,7 +27,10 @@ function ProjectBoxViewTitle({
           </IconButton>
         </Grid>
         <Grid item xs={1}>
-          <IconButton aria-label="delete" onClick={() => onDeleteProject(project)}>
+          <IconButton
+            aria-label="delete"
+            onClick={() => onDeleteProject(project)}
+          >
             <DeleteIcon />
           </IconButton>
         </Grid>

@@ -29,7 +29,7 @@ function ProjectBoxViewPainelTaskGroup({
       {tasks.length === 0 && (
         <Grid container paddingLeft={2}>
           <Grid item xs={10}>
-              <p>---</p>
+            <p>---</p>
           </Grid>
         </Grid>
       )}

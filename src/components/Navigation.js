@@ -28,7 +28,10 @@ function Navigation() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Button color="inherit" component={NavLink} to="/"> Bolttech</Button>
+            <Button color="inherit" component={NavLink} to="/">
+              {" "}
+              Bolttech
+            </Button>
           </Typography>
           {!token && (
             <div>
