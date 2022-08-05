@@ -1,5 +1,5 @@
 import { Grid, Snackbar, Alert } from "@mui/material";
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 import ProjectBoxView from "./project/ProjectBoxView";
 import ProjectBoxCreate from "./project/ProjectBoxCreate";
 import { useAuth } from "./login/AuthProvider";
@@ -11,39 +11,50 @@ import {
   getProjectsByUser,
   saveTask,
 } from "../services/api";
+import useInit from "../useInit";
 
 function Dashboard() {
-  const boxColor = "grey.300";
-  const pipe = process.env?.REACT_APP_PIPE?.split(",");
-  const { token, user, onLogout } = useAuth();
   const [open, setOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(false);
   const [severityMessage, setSeverityMessage] = React.useState("error");
   const [projects, setProjects] = React.useState([]);
+  const { token, onLogout } = useAuth();
+  const boxColor = "grey.300";
+  const pipe = process.env?.REACT_APP_PIPE?.split(",");
 
-  const loadProjects = useCallback(() => {
-    if (token && user) {
-      getProjectsByUser(token?.token, user?.id)
-        .then((data) => {
-          if (data?.status === 401) {
-            delay(() => {
-              onLogout();
-            }, 6000);
-          }
-          if (data?.status >= 400) {
-            handleClick(process.env.REACT_APP_ERROR_0005, "error");
-          } else {
-            setProjects(data);
-          }
-        })
-        .catch((err) => handleClick(err.message, "error"));
-    }
-  }, [token, user, onLogout]);
+  useInit(() => loadProjects());
 
-  useEffect(
-    () => loadProjects(token, user, onLogout),
-    [loadProjects, token, user, onLogout]
-  );
+  const loadProjects = () => {
+    getProjectsByUser(token?.token, token?.userId)
+      .then((data) => {
+        if (data?.status === 401) {
+          delay(() => onLogout(), 6000);
+        }
+        if (data?.status >= 400) {
+          handleClick(process.env.REACT_APP_ERROR_0005, "error");
+        } else {
+          setProjects(data);
+        }
+      })
+      .catch((err) => handleClick(err.message, "error"));
+  };
+
+  const responseTreat = (promise, resetForm, errorMessage, successMessage) => {
+    promise
+      .then((data) => {
+        if (data?.status === 401) {
+          delay(() => onLogout(), 6000);
+        }
+        if (data?.status >= 400) {
+          handleClick(errorMessage, "error");
+        } else {
+          handleClick(successMessage, "success");
+          if (resetForm) resetForm({ values: "" });
+          loadProjects();
+        }
+      })
+      .catch((err) => handleClick(err.message, "error"));
+  };
 
   const handleClick = (message, severity) => {
     setErrorMessage(message);
@@ -60,22 +71,12 @@ function Dashboard() {
   };
 
   const onSubmitProject = (values, { resetForm }) => {
-    createProject(token.token, values)
-      .then((data) => {
-        if (data?.status === 401) {
-          delay(() => {
-            onLogout();
-          }, 6000);
-        }
-        if (data?.status >= 400) {
-          handleClick(process.env.REACT_APP_ERROR_0007, "error");
-        } else {
-          handleClick(process.env.REACT_APP_ERROR_0006, "success");
-          resetForm({ values: "" });
-          loadProjects(token, user, onLogout);
-        }
-      })
-      .catch((err) => handleClick(err.message, "error"));
+    responseTreat(
+      createProject(token.token, values),
+      resetForm,
+      process.env.REACT_APP_ERROR_0007,
+      process.env.REACT_APP_ERROR_0006
+    );
   };
 
   const onEditProject = (project) => {
@@ -83,97 +84,51 @@ function Dashboard() {
   };
 
   const onDeleteProject = ({ id }) => {
-    deleteProject(token.token, id)
-      .then((data) => {
-        if (data?.status === 401) {
-          delay(() => {
-            onLogout();
-          }, 6000);
-        }
-        if (data?.status >= 400) {
-          handleClick(process.env.REACT_APP_ERROR_0008, "error");
-        } else {
-          handleClick(process.env.REACT_APP_ERROR_0009, "success");
-          loadProjects(token, user, onLogout);
-        }
-      })
-      .catch((err) => handleClick(err.message, "error"));
+    responseTreat(
+      deleteProject(token.token, id),
+      null,
+      process.env.REACT_APP_ERROR_0008,
+      process.env.REACT_APP_ERROR_0009
+    );
   };
 
   const onSubmitTask = (task, { resetForm }) => {
     task.status = first(pipe);
-    saveTask(token.token, task)
-      .then((data) => {
-        if (data?.status === 401) {
-          delay(() => {
-            onLogout();
-          }, 6000);
-        }
-        if (data?.status >= 400) {
-          handleClick(process.env.REACT_APP_ERROR_0014, "error");
-        } else {
-          handleClick(process.env.REACT_APP_ERROR_0015, "success");
-          resetForm({ values: "" });
-          loadProjects(token, user, onLogout);
-        }
-      })
-      .catch((err) => handleClick(err.message, "error"));
+    responseTreat(
+      saveTask(token.token, task),
+      resetForm,
+      process.env.REACT_APP_ERROR_0014,
+      process.env.REACT_APP_ERROR_0015
+    );
   };
 
   const onChangeTask = (task) => {
-    saveTask(token.token, task)
-      .then((data) => {
-        if (data?.status === 401) {
-          delay(() => {
-            onLogout();
-          }, 6000);
-        }
-        if (data?.status >= 400) {
-          handleClick(process.env.REACT_APP_ERROR_0014, "error");
-        } else {
-          handleClick(process.env.REACT_APP_ERROR_0015, "success");
-          loadProjects(token, user, onLogout);
-        }
-      })
-      .catch((err) => handleClick(err.message, "error"));
+    responseTreat(
+      saveTask(token.token, task),
+      null,
+      process.env.REACT_APP_ERROR_0014,
+      process.env.REACT_APP_ERROR_0015
+    );
   };
 
   const onMoveTask = (task) => {
     const idx = pipe.findIndex((step) => step === task.status);
     task.status = pipe[idx + 1];
-    saveTask(token.token, task)
-      .then((data) => {
-        if (data?.status === 401) {
-          delay(() => {
-            onLogout();
-          }, 6000);
-        }
-        if (data?.status >= 400) {
-          handleClick(process.env.REACT_APP_ERROR_0012, "error");
-        } else {
-          handleClick(process.env.REACT_APP_ERROR_0013, "success");
-          loadProjects(token, user, onLogout);
-        }
-      })
-      .catch((err) => handleClick(err.message, "error"));
+    responseTreat(
+      saveTask(token.token, task),
+      null,
+      process.env.REACT_APP_ERROR_0012,
+      process.env.REACT_APP_ERROR_0013
+    );
   };
 
   const onDeleteTask = ({ id }) => {
-    deleteTask(token.token, id)
-      .then((data) => {
-        if (data?.status === 401) {
-          delay(() => {
-            onLogout();
-          }, 6000);
-        }
-        if (data?.status >= 400) {
-          handleClick(process.env.REACT_APP_ERROR_0010, "error");
-        } else {
-          handleClick(process.env.REACT_APP_ERROR_0011, "success");
-          loadProjects(token, user, onLogout);
-        }
-      })
-      .catch((err) => handleClick(err.message, "error"));
+    responseTreat(
+      deleteTask(token.token, id),
+      null,
+      process.env.REACT_APP_ERROR_0010,
+      process.env.REACT_APP_ERROR_0011
+    );
   };
 
   return (

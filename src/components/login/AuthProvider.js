@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getUserMe, login } from "../../services/api";
 
@@ -12,18 +12,14 @@ function AuthProvider({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [token, setToken] = React.useState(null);
-  const [user, setUser] = React.useState(null);
-
-  const loadAuth = useCallback(() => {
-    const token = localStorage.getItem("bolttech_token");
-    setToken(JSON.parse(token));
-
-    const user = localStorage.getItem("bolttech_user");
-    setUser(JSON.parse(user));
-  }, []);
-
-  useEffect(() => loadAuth(), [loadAuth]);
+  const [token, setToken] = React.useState(() => {
+    const bolttechToken = localStorage.getItem("bolttech_token");
+    return (bolttechToken) ? JSON.parse(bolttechToken) : null;
+  });
+  const [user, setUser] = React.useState(() => {
+    const bolttechUser = localStorage.getItem("bolttech_user");
+    return (bolttechUser) ? JSON.parse(bolttechUser) : null;
+  });
 
   const handleLogin = async (data) => {
     let json = await login(data);
